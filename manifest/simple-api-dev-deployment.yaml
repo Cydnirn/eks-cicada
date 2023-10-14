@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-api-dev-deployment
+  namespace: test-dev
+  labels:
+    app: simple-api-dev-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-api-dev-service
+  template:
+    metadata:
+      labels:
+        app: simple-api-dev-service
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: simple-api
+        image: 440941313939.dkr.ecr.ap-southeast-1.amazonaws.com/simple-api:latest
+        ports:
+        - name: http
+          containerPort: 3000
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "128M"
+            cpu: "0.5"
+          limits:
+            memory: "512M"
+            cpu: "1"
+      nodeSelector:
+        kubernetes.io/os: linux
